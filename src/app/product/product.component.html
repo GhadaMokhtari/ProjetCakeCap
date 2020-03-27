@@ -1,0 +1,15 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-2">
+      <h5 class="card-title mt-3">Cookie et quantité</h5>
+      <div class="logo">
+        <img class="rond" src="../../assets/Produits/millefeuille.jpg" width="40%" (click)="startFabrication()" style="cursor:pointer"/>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="progress" #bar ></div>
+      <div class="bg-light text-dark" id="temps{{product.id}}">00:00: time</div><br>
+      <button id=buyBtn{{product.id}} class="btn btn-warning" style="background-color: #d8a683" (click)="updateBuy()">Buy {{rateProd}} for <span [innerHTML] = "currentcout | bigvalue"></span> €</button>
+    </div>
+  </div>
+</div>
