@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, Host, OnChanges, SimpleChanges } from '@angular/core';
-import { Product, World } from '../world';
+import {Component, OnInit, Input, ViewChild, Output, EventEmitter, Host, OnChanges, SimpleChanges, ElementRef} from '@angular/core';
+import {Pallier, Product, World} from '../world';
 import { AppComponent } from '../app.component';
+import {apiUrl} from '../api';
 
 
 declare var require;
@@ -11,43 +12,50 @@ const ProgressBar = require('progressbar.js');
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.css']
 })
-export class ProductComponent implements OnInit, OnChanges {
+export class ProductComponent implements OnInit {
 
   world: World;
   product: Product;
   lastupdate: number;
-  rateProd: string;
   // tslint:disable-next-line:variable-name
   _money: number;
   revenu: number;
   currentcout: number;
   // tslint:disable-next-line:variable-name
   _qtmulti: string;
-
+  isRun: boolean;
   temps: any;
 
-  @ViewChild('bar') progressBarItem;
+  @ViewChild('bar') progressBarItem: ElementRef;
   progressbar: any;
+
+  constructor() {
+  }
 
   @Input()
   set money(value: number) {
     this._money = value;
-    if (this._money && this.product) {
-      this.calcMaxCanBuy();
-      this.calcCout();
-    }
   }
 
   @Input()
   set prod(value: Product) {
     this.product = value;
-    this.lastupdate = Date.now();
+    if (this.product && this.product.timeleft > 0) {
+      this.lastupdate = Date.now();
+      const progress = (this.product.vitesse - this.product.timeleft) / this.product.vitesse;
+      this.progressbar.set(progress);
+      this.progressbar.animate(1, {duration: this.product.timeleft});
+    }
   }
 
   @Input()
   set qtmulti(value: string) {
-    this._qtmulti = value;
-    this.calcCout();
+    // tslint:disable-next-line:triple-equals
+    if (value == 'Max') {
+      this._qtmulti = 'X' + this.calcMaxCanBuy();
+    } else {
+      this._qtmulti = value;
+    }
   }
 
   @Output()
@@ -56,120 +64,125 @@ export class ProductComponent implements OnInit, OnChanges {
   @Output()
   notifyBuy: EventEmitter<number> = new EventEmitter<number>();
 
-  constructor(@Host() parent: AppComponent) { }
+  @Output()
+  notifyUnlocked: EventEmitter<Pallier> = new EventEmitter<Pallier>();
 
- startFabrication() {
-    this.progressbar.set(0);
-    this.progressbar.animate(1, { duration: this.product.vitesse });
-    this.product.timeleft = this.product.vitesse;
-    this.countdown(this.product.id, this.product.vitesse);
+
+  ngOnInit(): void {
+    // this.progressbar = new ProgressBar.Line(
+    //   this.progressBarItem.nativeElement, {
+    //     strokeWidth: 50, color: '#34495e'}
+    //   );
+    // setInterval(() => { this.calcScore(); }, 100);
+    // this.revenu = this.product.revenu;
+    // this.currentcout = this.product.cout;
+    // if (this.product.vitesse / 1000 < 10) {
+    //   this.temps = '0' + this.product.vitesse / 1000;
+    // } else {
+    //   this.temps = this.product.vitesse / 1000;
+    // }
+    setInterval(() => {
+      this.calcScore();
+    }, 100);
+    // this.productsUnlocks();
   }
 
-  calcScore(): void {
-    const now = Date.now();
-    const elapseTime = now - this.lastupdate;
-    this.lastupdate = now;
+  getImage() {
+    return apiUrl + this.product.logo;
+  }
 
+  // tslint:disable-next-line:use-lifecycle-interface
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.progressbar = new ProgressBar.Line(this.progressBarItem.nativeElement, {
+        strokeWidth: 4,
+        easing: 'easeInOut',
+        color: '#d8a683',
+        trailColor: '#eee',
+        trailWidth: 1,
+        svgStyle: {width: '100%', height: '100%'},
+      });
+    }, 100);
+  }
+
+  startFabrication() {
+    if (this.product.quantite >= 1 && !this.isRun) {
+      console.log('Fabrication commencée');
+      this.product.timeleft = this.product.vitesse;
+      this.lastupdate = Date.now();
+      this.progressbar.animate(1, {duration: this.product.vitesse});
+      this.isRun = true;
+    }
+  }
+
+  calcScore() {
+    if (this.isRun) {
+      if (this.product.timeleft > 0) {
+        this.product.timeleft = this.product.timeleft - (Date.now() - this.lastupdate);
+        this.lastupdate = Date.now();
+        console.log('calcScore coucou');
+      } else {
+        this.isRun = false;
+        this.lastupdate = 0;
+        this.product.timeleft = 0;
+        this.progressbar.set(0);
+        this.notifyProduction.emit(this.product);
+      }
+    }
     if (this.product.managerUnlocked) {
-      if (this.product.timeleft !== 0) {
-        this.product.timeleft = this.product.timeleft - elapseTime;
-        if (this.product.timeleft <= 0) {
-          this.product.timeleft = this.product.vitesse;
-          // On prévient le composant parent que ce produit a généré son revenu.
-          this.notifyProduction.emit(this.product);
-          this.startFabrication();
-        }
-      } else {
-        this.startFabrication();
-      }
-
-    } else {
-
-      if (this.product.timeleft !== 0) {
-        this.product.timeleft = this.product.timeleft - elapseTime;
-        if (this.product.timeleft <= 0) {
-          this.product.timeleft = 0;
-          this.progressbar.set(0);
-          this.notifyProduction.emit(this.product);
-        }
-      }
+      this.startFabrication();
     }
   }
 
+  buyQuantite() {
+    let qty = 0;
+    // tslint:disable-next-line:max-line-length
+    if (this._qtmulti === '1') { qty = 1; } else if (this._qtmulti === '10') { qty = 10; } else if (this._qtmulti === '100') { qty = 100; } else if (this._qtmulti === 'Max') { qty = this.calcMaxCanBuy(); }
 
-  ngOnInit() {
-    this.progressbar = new ProgressBar.Line(this.progressBarItem.nativeElement, {
-       strokeWidth: 50, color:
-        '#34495e'
-     });
-    setInterval(() => { this.calcScore(); }, 100);
-    this.revenu = this.product.revenu;
-    this.currentcout = this.product.cout;
-    if (this.product.vitesse / 1000 < 10) {
-      this.temps = '0' + this.product.vitesse / 1000;
-    } else {
-      this.temps = this.product.vitesse / 1000;
-    }
+    return qty;
   }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.rate) {
-      if (changes.rate.currentValue === 'Max') {
-        this.rateProd = this.calcMaxCanBuy().toString();
-      } else {
-        this.rateProd = changes.rate.currentValue;
-      }
-    }
-  }
-
+  // onBuy()
   updateBuy() {
-    if (this._money >= this.currentcout) {
-      // tslint:disable-next-line:radix
-      this.notifyBuy.emit(this.product.cout * ((1 - Math.pow(this.product.croissance, parseInt(this.rateProd))) /
-        (1 - this.product.croissance)));
-      // tslint:disable-next-line:radix
-      this.product.quantite += parseInt(this.rateProd);
-      this.revenu = this.product.revenu * this.product.quantite;
-      this.calcCout();
+    // tslint:disable-next-line:prefer-const one-variable-per-declaration
+    console.log('updateBuy');
+    const qty = this.buyQuantite();
+    // tslint:disable-next-line:prefer-const
+    let coutAchat = this.calcCout(qty);
+    console.log('coutAchat :' + coutAchat);
+    if (this._money >= coutAchat) {
+      this.notifyBuy.emit(coutAchat);
+      this.product.quantite = this.product.quantite + qty;
     }
   }
 
   calcMaxCanBuy() {
-    const qtMax = (Math.log((1 - this._money * (1 - this.product.croissance)) / this.product.cout + 1)) / Math.log(this.product.croissance);
-    return Math.trunc(qtMax);
+    let quantiteMax = 0;
+    let totalCost = 0;
+    let costForOne = this.product.cout * (this.product.croissance ** this.product.quantite);
+    while ((totalCost + costForOne) <= this._money) {
+      totalCost += costForOne;
+      quantiteMax ++;
+      costForOne = costForOne * this.product.croissance;
+    }
+    return quantiteMax;
   }
 
-  calcCout() {
-    let res = 0;
-    const price = this.product.cout;
-    const multi = this.calcMaxCanBuy();
-
-    if (this._qtmulti === 'Max') {
-      res = (price * ((1 - Math.pow(this.product.croissance, multi)) / (1 - this.product.croissance)));
-      this.currentcout = res;
-      this.rateProd = this.calcMaxCanBuy().toString();
+  calcCout(qty: number) {
+    let totalCost = 0;
+    let costForOne = this.product.cout * (this.product.croissance ** this.product.quantite);
+    console.log('costForOne' + costForOne);
+    for (let i = 0; i < qty; i++) {
+      totalCost += costForOne;
+      costForOne = costForOne * this.product.croissance;
     }
-
-    if (this._qtmulti === '100') {
-      res = (price * ((1 - Math.pow(this.product.croissance, 100)) / (1 - this.product.croissance)));
-      this.currentcout = res;
-    }
-
-    if (this._qtmulti === '10') {
-      res = (price * ((1 - Math.pow(this.product.croissance, 10)) / (1 - this.product.croissance)));
-      this.currentcout = res;
-    }
-
-    if (this._qtmulti === '1') {
-      res = price * this.product.croissance ** this.product.quantite;
-      this.currentcout = res;
-    }
+    return totalCost;
+    console.log('cout total' + totalCost);
   }
 
   countdown(id: number, speed: number) {
     const countDownDate = new Date().getTime() + speed;
     // tslint:disable-next-line:only-arrow-functions
-    const x = setInterval(function () {
+    const x = setInterval(function() {
       const now = new Date().getTime();
       const distance = countDownDate - now;
       let hours = (Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).toString();
@@ -196,5 +209,26 @@ export class ProductComponent implements OnInit, OnChanges {
         document.getElementById('temps' + id).innerHTML = hours + ':' + minutes + ':' + time;
       }
     }, 0);
+  }
+  calcUpgrade(pallier: Pallier) {
+    switch (pallier.typeratio) {
+      case 'VITESSE':
+        this.product.vitesse = this.product.vitesse / pallier.ratio;
+        break;
+      case 'GAIN':
+        this.product.revenu = this.product.revenu * pallier.ratio;
+        break;
+    }
+  }
+  productsUnlocks() {
+    this.product.palliers.pallier.forEach(palier => {
+      if (!palier.unlocked && this.product.quantite >= palier.seuil) {
+        palier.unlocked = true;
+        this.calcUpgrade(palier);
+        this.notifyUnlocked.emit(palier);
+      }
+
+    });
+
   }
 }

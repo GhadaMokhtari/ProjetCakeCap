@@ -14,3 +14,6 @@
   top:10%; /* a 10% du haut */
   left:20%; /* a 20% de la gauche */
 }
+h2{
+  text-align: center;
+}

@@ -1,38 +1,65 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { World, Pallier, Product } from './world';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestService {
-  private _server = 'http://localhost:8080/adventureISIS/';
-  private _user = '';
+  // tslint:disable-next-line:variable-name
+   _server = 'http://localhost:8080/adventureisis';
+  // tslint:disable-next-line:variable-name
+   user = localStorage.getItem('username');
+
   constructor(private http: HttpClient) { }
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);
   }
-  getWorld(): Promise<World> {
-    return this.http.get(this._server + 'webresources/generic/world')
-      .toPromise().catch(this.handleError);
+  private setHeaders(user: string): HttpHeaders {
+    const headers = new HttpHeaders();
+    headers.append('X-user', user);
+    return headers;
   }
 
-  get server(): string {
+  getWorld(): Promise<World> {
+    return this.http.get(this._server + '/generic/world', {
+      headers: this.setHeaders(this.user)
+    })
+      .toPromise()
+      .catch(this.handleError);
+  }
+
+  getServer(): string {
     return this._server;
   }
 
-  get user(): string {
-    return this._user;
+  getUser(): string {
+    return this.user;
   }
 
   // tslint:disable-next-line:adjacent-overload-signatures
-  set server(value: string) {
+  setServer(value: string) {
     this._server = value;
   }
 
   // tslint:disable-next-line:adjacent-overload-signatures
-  set user(value: string) {
-    this._user = value;
+  setUser(value: string) {
+    this.user = value;
   }
+  // public saveWorld(world: World) {
+  //   this.http
+  //     .put(this._server + 'generic/world', world, {
+  //       headers: {'X-user': localStorage.getItem('username')}
+  //     })
+  //     .subscribe(
+  //       () => {
+  //         console.log('Enregistrement effectué');
+  //       },
+  //       (error) => {
+  //         console.log('Erreur : ' + error);
+  //       }
+  //     );
+  //
+  // }
 }

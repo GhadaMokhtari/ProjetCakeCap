@@ -1,15 +1,18 @@
 <div class="container">
   <div class="row">
     <div class="col-md-2">
-      <h5 class="card-title mt-3">Cookie et quantité</h5>
+      <h5 class="card-title mt-3">{{product.name}}</h5>
       <div class="logo">
-        <img class="rond" src="../../assets/Produits/millefeuille.jpg" width="40%" (click)="startFabrication()" style="cursor:pointer"/>
+        <img class="rond" [attr.src]="this.getImage()" width="40%" (click)="startFabrication()" style="cursor:pointer"/>
+        <h5 class="card-title mt-3"> Quantité : {{product.quantite}}</h5>
+
       </div>
     </div>
     <div class="col-md-2">
+<!--      <progress-bar [progress]="15" [color]="'#488aff'">-->
+<!--      </progress-bar>-->
       <div class="progress" #bar ></div>
-      <div class="bg-light text-dark" id="temps{{product.id}}">00:00: time</div><br>
-      <button id=buyBtn{{product.id}} class="btn btn-warning" style="background-color: #d8a683" (click)="updateBuy()">Buy {{rateProd}} for <span [innerHTML] = "currentcout | bigvalue"></span> €</button>
-    </div>
+      <button type=button class="button col-md-5 btn btn-warning btn-md" (click)="updateBuy()" *ngIf="_qtmulti != 'Max'" [disabled]="_money < calcCout(buyQuantite())">Buy {{_qtmulti}}</button>
+      <button type=button class="button col-md-5 btn btn-warning btn-md" (click)="updateBuy()" *ngIf="_qtmulti == 'Max'">Buy X{{calcMaxCanBuy()}}</button>    </div>
   </div>
 </div>
