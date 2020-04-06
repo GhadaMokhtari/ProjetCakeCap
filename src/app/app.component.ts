@@ -37,8 +37,6 @@ export class AppComponent {
       world => {
         this.world = world;
       });
-    console.log('test');
-    console.log(this.world);
   }
   // tslint:disable-next-line:use-lifecycle-interface
   ngOnInit() {

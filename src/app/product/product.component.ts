@@ -2,6 +2,8 @@ import {Component, OnInit, Input, ViewChild, Output, EventEmitter, Host, OnChang
 import {Pallier, Product, World} from '../world';
 import { AppComponent } from '../app.component';
 import {apiUrl} from '../api';
+import {RestService} from '../rest.service';
+import {ToasterService} from 'angular2-toaster';
 
 
 declare var require;
@@ -19,17 +21,23 @@ export class ProductComponent implements OnInit {
   lastupdate: number;
   // tslint:disable-next-line:variable-name
   _money: number;
+  // tslint:disable-next-line:variable-name
+  _totalCost = 0;
   revenu: number;
   currentcout: number;
   // tslint:disable-next-line:variable-name
   _qtmulti: string;
   isRun: boolean;
   temps: any;
+  toasterService: ToasterService;
 
   @ViewChild('bar') progressBarItem: ElementRef;
   progressbar: any;
+  achat: number;
 
-  constructor() {
+  constructor(private service: RestService, toasterService: ToasterService) {
+    this.toasterService = toasterService;
+
   }
 
   @Input()
@@ -67,24 +75,17 @@ export class ProductComponent implements OnInit {
   @Output()
   notifyUnlocked: EventEmitter<Pallier> = new EventEmitter<Pallier>();
 
+  @Output() notifyAchat: EventEmitter<number> = new EventEmitter<number>();
+
 
   ngOnInit(): void {
-    // this.progressbar = new ProgressBar.Line(
-    //   this.progressBarItem.nativeElement, {
-    //     strokeWidth: 50, color: '#34495e'}
-    //   );
-    // setInterval(() => { this.calcScore(); }, 100);
-    // this.revenu = this.product.revenu;
-    // this.currentcout = this.product.cout;
-    // if (this.product.vitesse / 1000 < 10) {
-    //   this.temps = '0' + this.product.vitesse / 1000;
-    // } else {
-    //   this.temps = this.product.vitesse / 1000;
-    // }
     setInterval(() => {
       this.calcScore();
     }, 100);
-    // this.productsUnlocks();
+    this.productsUnlocks();
+    // if (this.product.cout <= this._money) {
+    //   this.toasterService.pop('Vous avez débloqué le produit ' + this.product.name);
+    // }
   }
 
   getImage() {
@@ -136,6 +137,7 @@ export class ProductComponent implements OnInit {
 
   buyQuantite() {
     let qty = 0;
+
     // tslint:disable-next-line:max-line-length
     if (this._qtmulti === '1') { qty = 1; } else if (this._qtmulti === '10') { qty = 10; } else if (this._qtmulti === '100') { qty = 100; } else if (this._qtmulti === 'Max') { qty = this.calcMaxCanBuy(); }
 
@@ -148,35 +150,74 @@ export class ProductComponent implements OnInit {
     const qty = this.buyQuantite();
     // tslint:disable-next-line:prefer-const
     let coutAchat = this.calcCout(qty);
-    console.log('coutAchat :' + coutAchat);
+    console.log('coutAchat :' + qty);
     if (this._money >= coutAchat) {
+      console.log('test', + coutAchat);
       this.notifyBuy.emit(coutAchat);
       this.product.quantite = this.product.quantite + qty;
     }
+    // const max = this.calcMaxCanBuy();
+    // if (max < this._money) {
+    //   this.notifyAchat.emit(this.calcMaxCanBuy());
+    //   this.product.quantite += this.achat;
+    //   this.checkUnlocks()
+    //   this.service.putProduct(this.product);
+    //
+    // }
+  }
+  getRealPrice() {
+    return this.product.cout * this.product.croissance ** this.product.quantite;
   }
 
   calcMaxCanBuy() {
-    let quantiteMax = 0;
-    let totalCost = 0;
-    let costForOne = this.product.cout * (this.product.croissance ** this.product.quantite);
-    while ((totalCost + costForOne) <= this._money) {
-      totalCost += costForOne;
-      quantiteMax ++;
-      costForOne = costForOne * this.product.croissance;
+    const price = this.getRealPrice();
+    let res;
+    let multiplicateur;
+
+    if (this._qtmulti === 'max') {
+      // multiplicateur =Math.round((Math.log((this.worldMoney*(this.product.croissance-1))/(price)+1))/Math.log(this.product.croissance)-1);
+      multiplicateur = Math.ceil(
+        Math.log(
+          1 - (this._money * (1 - this.product.croissance)) / price
+        ) /
+        Math.log(this.product.croissance) -
+        1
+      );
+      console.log(multiplicateur);
+      if (multiplicateur <= 0) {
+        multiplicateur = 1;
+      }
+    } else {
+      // tslint:disable-next-line:radix
+      multiplicateur = parseInt(this._qtmulti.substr(1));
     }
-    return quantiteMax;
+    res =
+      price *
+      ((1 - this.product.croissance ** multiplicateur) /
+        (1 - this.product.croissance));
+    this.achat = multiplicateur;
+    return res;
   }
 
   calcCout(qty: number) {
+
     let totalCost = 0;
+    console.log('nom du produit  ' + this.product.name);
+    console.log('cout du prod ' + this.product.cout);
+    console.log('cout du croissance ' + this.product.croissance);
+    console.log('cout du quantite ' + this.product.quantite);
     let costForOne = this.product.cout * (this.product.croissance ** this.product.quantite);
-    console.log('costForOne' + costForOne);
+   // this.product.cout = costForOne;
+   // this.service.putProduct(this.product);
+    console.log('prix pour un prod ' + costForOne);
+    console.log('quantité ' + qty);
     for (let i = 0; i < qty; i++) {
       totalCost += costForOne;
       costForOne = costForOne * this.product.croissance;
     }
+    this._totalCost = totalCost;
     return totalCost;
-    console.log('cout total' + totalCost);
+
   }
 
   countdown(id: number, speed: number) {

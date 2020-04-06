@@ -42,7 +42,13 @@ export class RestService {
   setServer(value: string) {
     this._server = value;
   }
+  putProduct(product: Product) {
+    return this.http.put(this._server + '/product', product, { headers: this.setHeaders(this.user) }).toPromise();
+  }
 
+  putManager(manager: Pallier) {
+    return this.http.put(this._server + '/manager', manager, { headers: this.setHeaders(this.user) }).toPromise();
+  }
   // tslint:disable-next-line:adjacent-overload-signatures
   setUser(value: string) {
     this.user = value;

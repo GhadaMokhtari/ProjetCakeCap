@@ -64,29 +64,27 @@
 
   </div>
 
-  <app-modal #managersModal>
-    <div class="app-modal-header">
-      <div  class="modal">
-        <div><h1 class="title">Managers make you feel better !</h1></div>
-        <div>
+      <app-modal #managersModal>
+        <div class="app-modal-header">
+          <h4 class="modal-title text-center" style="font-size:x-large;">Managers make you feel better !</h4>
+        </div>
+        <div class="app-modal-body" style="padding-right: 10px;">
           <div *ngFor="let manager of world.managers.pallier">
-            <div *ngIf="!manager.unlocked" class="managerslayout">
-              <div>
-                <div class="logo"><img class="round" [attr.src]="server+manager.logo" /> </div>
+            <div *ngIf="!manager.unlocked" class="row rounded notif border-bottom">
+              <div class="col-md-5">
+                <img class="img-responsive" [src]="'http://localhost:8080/'+manager.logo" style="cursor:pointer" />
               </div>
-              <div>
-                <div class="managername"> {{ manager.name}} </div>
-                <div class="managercible"> {{ world.products.product[manager.idcible].name }} </div>
-                <div class="managercost"> {{ manager.seuil}} </div>
-              </div>
-              <div>
-                <div class="hirebutton" (click)="buyManager(manager)"
-                     [ngClass]="{'selectable' : (world.money >= manager.seuil)}">Hire !</div>
+              <div class="col-md-7">
+                <div class="row">
+                  <button class="btn btn-info pull-right" style="height: 100px; width: 100px;" (click)="buyManager(manager)" [disabled]="world.money < manager.seuil">Hire!</button>
+                  <span class="txt2 row text-center font-weight-bold" style="font-size:x-large; text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">{{manager.name}}
+                    <br><span>Price : {{manager.seuil}} €</span>
+                            </span>
+                </div>
+
               </div>
             </div>
           </div>
-          <button class="closebutton" mat-raisedbutton color="primary" (click)="managersModal.hide()">Close</button>
         </div>
-      </div>
-    </div>
-  </app-modal>
+        <div class="app-modal-footer"> <button type="button" class="btn btn-default" (click)="managersModal.hide()">Close</button> </div>
+      </app-modal>
