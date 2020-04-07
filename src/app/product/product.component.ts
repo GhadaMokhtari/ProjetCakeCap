@@ -3,12 +3,13 @@ import {Pallier, Product, World} from '../world';
 import { AppComponent } from '../app.component';
 import {apiUrl} from '../api';
 import {RestService} from '../rest.service';
-import {ToasterService} from 'angular2-toaster';
+import {ToasterService} from 'angular2-toaster/src/toaster.service';
 
 
 declare var require;
 const ProgressBar = require('progressbar.js');
 
+// @ts-ignore
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
@@ -128,6 +129,7 @@ export class ProductComponent implements OnInit {
         this.product.timeleft = 0;
         this.progressbar.set(0);
         this.notifyProduction.emit(this.product);
+        this.service.putProduct(this.product);
       }
     }
     if (this.product.managerUnlocked) {
@@ -155,6 +157,7 @@ export class ProductComponent implements OnInit {
       console.log('test', + coutAchat);
       this.notifyBuy.emit(coutAchat);
       this.product.quantite = this.product.quantite + qty;
+      this.service.putProduct(this.product);
     }
   }
 

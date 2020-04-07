@@ -126,11 +126,12 @@ export class AppComponent {
         if (m.idcible === element.id) {
           const indexe = this.world.products.product.indexOf(element);
           this.world.products.product[indexe].managerUnlocked = true;
+          this.toasterService.pop('Achat du Manager ' + m.name + ' effectué');
+          this.service.putManager(m);
         }
       });
       this.newManager();
       // this.managerDisponibility();
-      this.toasterService.pop('Achat du Manager ' + m.name + ' effectué');
       }
 
   }
