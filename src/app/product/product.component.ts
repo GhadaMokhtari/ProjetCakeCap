@@ -156,15 +156,8 @@ export class ProductComponent implements OnInit {
       this.notifyBuy.emit(coutAchat);
       this.product.quantite = this.product.quantite + qty;
     }
-    // const max = this.calcMaxCanBuy();
-    // if (max < this._money) {
-    //   this.notifyAchat.emit(this.calcMaxCanBuy());
-    //   this.product.quantite += this.achat;
-    //   this.checkUnlocks()
-    //   this.service.putProduct(this.product);
-    //
-    // }
   }
+
   getRealPrice() {
     return this.product.cout * this.product.croissance ** this.product.quantite;
   }
@@ -207,8 +200,8 @@ export class ProductComponent implements OnInit {
     console.log('cout du croissance ' + this.product.croissance);
     console.log('cout du quantite ' + this.product.quantite);
     let costForOne = this.product.cout * (this.product.croissance ** this.product.quantite);
-   // this.product.cout = costForOne;
-   // this.service.putProduct(this.product);
+    this.product.cout = costForOne;
+    this.service.putProduct(this.product);
     console.log('prix pour un prod ' + costForOne);
     console.log('quantité ' + qty);
     for (let i = 0; i < qty; i++) {

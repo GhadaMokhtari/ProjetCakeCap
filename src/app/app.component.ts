@@ -46,8 +46,7 @@ export class AppComponent {
       localStorage.setItem('username', this.username);
     }
     setInterval(() => {
-     // this.service.saveWorld(this.world);
-      this.managerDisponibility();
+      this.service.saveWorld(this.world);
       this.upgradeDisponibility();
       // this.bonusAllunlock();
     }, 1000);
@@ -81,7 +80,6 @@ export class AppComponent {
     }
     console.log(this.world.money);
     await delay(0);
-
     this.newManager();
   }
 
@@ -96,16 +94,16 @@ export class AppComponent {
       }
     }
   }
-  managerDisponibility(): void {
-    this.managerDispo = false;
-    this.world.managers.pallier.forEach(val => {
-      if (!this.managerDispo) {
-        if (this.world.money > val.seuil && !val.unlocked) {
-          this.managerDispo = true;
-        }
-      }
-    });
-  }
+  // managerDisponibility(): void {
+  //   this.managerDispo = false;
+  //   this.world.managers.pallier.forEach(val => {
+  //     if (!this.managerDispo) {
+  //       if (this.world.money > val.seuil && !val.unlocked) {
+  //         this.managerDispo = true;
+  //       }
+  //     }
+  //   });
+  // }
 
   upgradeDisponibility() {
     this.upgradeDispo = false;
@@ -130,7 +128,8 @@ export class AppComponent {
           this.world.products.product[indexe].managerUnlocked = true;
         }
       });
-      this.managerDisponibility();
+      this.newManager();
+      // this.managerDisponibility();
       this.toasterService.pop('Achat du Manager ' + m.name + ' effectué');
       }
 

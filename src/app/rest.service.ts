@@ -53,19 +53,19 @@ export class RestService {
   setUser(value: string) {
     this.user = value;
   }
-  // public saveWorld(world: World) {
-  //   this.http
-  //     .put(this._server + 'generic/world', world, {
-  //       headers: {'X-user': localStorage.getItem('username')}
-  //     })
-  //     .subscribe(
-  //       () => {
-  //         console.log('Enregistrement effectué');
-  //       },
-  //       (error) => {
-  //         console.log('Erreur : ' + error);
-  //       }
-  //     );
-  //
-  // }
+  public saveWorld(world: World) {
+    this.http
+      .put(this._server + 'generic/world', world, {
+        headers: {'X-user': localStorage.getItem('username')}
+      })
+      .subscribe(
+        () => {
+          console.log('Enregistrement effectué');
+        },
+        (error) => {
+          console.log('Erreur : ' + error);
+        }
+      );
+
+  }
 }
