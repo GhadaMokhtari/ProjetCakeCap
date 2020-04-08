@@ -9,7 +9,6 @@ import {ToasterService} from 'angular2-toaster/src/toaster.service';
 declare var require;
 const ProgressBar = require('progressbar.js');
 
-// @ts-ignore
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
@@ -129,7 +128,6 @@ export class ProductComponent implements OnInit {
         this.product.timeleft = 0;
         this.progressbar.set(0);
         this.notifyProduction.emit(this.product);
-        this.service.putProduct(this.product);
       }
     }
     if (this.product.managerUnlocked) {
@@ -157,7 +155,6 @@ export class ProductComponent implements OnInit {
       console.log('test', + coutAchat);
       this.notifyBuy.emit(coutAchat);
       this.product.quantite = this.product.quantite + qty;
-      this.service.putProduct(this.product);
     }
   }
 
@@ -196,15 +193,14 @@ export class ProductComponent implements OnInit {
   }
 
   calcCout(qty: number) {
-
     let totalCost = 0;
     console.log('nom du produit  ' + this.product.name);
     console.log('cout du prod ' + this.product.cout);
     console.log('cout du croissance ' + this.product.croissance);
     console.log('cout du quantite ' + this.product.quantite);
     let costForOne = this.product.cout * (this.product.croissance ** this.product.quantite);
-    this.product.cout = costForOne;
-    this.service.putProduct(this.product);
+    // this.product.cout = costForOne;
+    // this.service.putProduct(this.product);
     console.log('prix pour un prod ' + costForOne);
     console.log('quantité ' + qty);
     for (let i = 0; i < qty; i++) {

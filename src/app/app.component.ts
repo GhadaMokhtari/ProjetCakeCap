@@ -46,7 +46,7 @@ export class AppComponent {
       localStorage.setItem('username', this.username);
     }
     setInterval(() => {
-      this.service.saveWorld(this.world);
+      //  this.service.saveWorld(this.world);
       this.upgradeDisponibility();
       // this.bonusAllunlock();
     }, 1000);
@@ -127,7 +127,6 @@ export class AppComponent {
           const indexe = this.world.products.product.indexOf(element);
           this.world.products.product[indexe].managerUnlocked = true;
           this.toasterService.pop('Achat du Manager ' + m.name + ' effectué');
-          this.service.putManager(m);
         }
       });
       this.newManager();
