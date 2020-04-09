@@ -68,4 +68,13 @@ export class RestService {
       );
 
   }
+
+  public deleteWorld(): Promise<Response> {
+    return this.http
+      .delete(this._server + 'generic/world', {
+        headers: this.setHeaders(this.getUser())
+      })
+      .toPromise().then(response => response)
+      .catch(this.handleError);
+  }
 }

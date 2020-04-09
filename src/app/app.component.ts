@@ -28,6 +28,7 @@ export class AppComponent {
 
   managerDispo: boolean;
   upgradeDispo: boolean;
+  dispoAngel: boolean;
   constructor(private service: RestService, toasterService: ToasterService) {
     this.qtmulti = this.qt[this.qtIndex];
     this.server = service.getServer();
@@ -47,8 +48,10 @@ export class AppComponent {
     }
     setInterval(() => {
       //  this.service.saveWorld(this.world);
+      this.newManager();
+      this.angelsDisponibility();
       this.upgradeDisponibility();
-      // this.bonusAllunlock();
+      this.bonusAllunlock();
     }, 1000);
   }
   getImage() {
@@ -76,11 +79,11 @@ export class AppComponent {
       console.log('hi' + cost);
     } else {
       this.world.money = this.world.money;
-      console.log('same');
     }
     console.log(this.world.money);
     await delay(0);
     this.newManager();
+    this.upgradeDisponibility();
   }
 
   // vérifie la disponibbilité des managers et ajoute la mention new sur le bouton
@@ -94,16 +97,21 @@ export class AppComponent {
       }
     }
   }
-  // managerDisponibility(): void {
-  //   this.managerDispo = false;
-  //   this.world.managers.pallier.forEach(val => {
-  //     if (!this.managerDispo) {
-  //       if (this.world.money > val.seuil && !val.unlocked) {
-  //         this.managerDispo = true;
-  //       }
-  //     }
-  //   });
-  // }
+
+  bonusAllunlock() {
+    // on recherche la quantité minmal des produits
+    const min = Math.min(
+      ...this.productsComponent.map(p => p.product.quantite)
+    );
+    this.world.allunlocks.pallier.map(pallier => {
+      // si la quantité minimal dépasse le seuil, on débloque le produit concerné
+      if (!pallier.unlocked && min >= pallier.seuil) {
+        pallier.unlocked = true;
+        this.productsComponent.forEach(prod => prod.calcUpgrade(pallier));
+        this.toasterService.pop('Bonus de ' + pallier.typeratio + ' effectué sur tous les produits', 'bonus global');
+      }
+    });
+  }
 
   upgradeDisponibility() {
     this.upgradeDispo = false;
@@ -111,9 +119,32 @@ export class AppComponent {
       if (!this.upgradeDispo) {
         if (!upgrade.unlocked && this.world.money > upgrade.seuil) {
           this.upgradeDispo = true;
+          document.getElementById('btnUpgrades').innerHTML = '<span class="badge">New</span> Cash Upgrade';
+        } else {
+          document.getElementById('btnUpgrades').innerHTML = 'Cash Upgrade';
         }
       }
     });
+  }
+
+  buyUpgrade(u: Pallier) {
+    if (this.world.money >= u.seuil) {
+      this.world.money = this.world.money - u.seuil;
+      this.world.upgrades.pallier[this.world.upgrades.pallier.indexOf(u)].unlocked = true;
+
+      if (u.idcible === 0) {
+        this.productsComponent.forEach(prod => prod.calcUpgrade(u));
+        this.toasterService.pop('Upgrade buy ' + u.typeratio + ' for all products', 'Global Upgrade');
+      } else {
+        this.productsComponent.forEach(prod => {
+          if (u.idcible === prod.product.id) {
+            prod.calcUpgrade(u);
+            this.toasterService.pop('Upgrade buy ' + u.typeratio + ' for ' + prod.product.name, 'Upgrade');
+          }
+        });
+      }
+      this.upgradeDisponibility();
+    }
   }
 
   buyManager(m: Pallier) {
@@ -130,29 +161,49 @@ export class AppComponent {
         }
       });
       this.newManager();
-      // this.managerDisponibility();
       }
-
   }
-  // buyManager(cost: number, id: number): void {
-  //   this.world.money -= cost;
-  //   for (const manager of this.world.managers.pallier) {
-  //     if (manager.idcible === id) {
-  //       manager.unlocked = true;
-  //       this.toasterService.pop('success', 'Manager ' + manager.name + 'Embauché !');
-  //     }
-  //   }
-  //   for (const product of this.world.products.product) {
-  //     if (product.id === id) {
-  //       product.managerUnlocked = true;
-  //     }
-  //   }
-  // }
+
+  angelsDisponibility() {
+    for (const angel of this.world.angelupgrades.pallier) {
+      if (this.world.money >= angel.seuil && angel.unlocked === false) {
+        document.getElementById('btnAngels').innerHTML = '<span class="badge">New</span> Angels Upgrade';
+        break;
+      } else {
+        document.getElementById('btnAngels').innerHTML = 'Angels Upgrade';
+      }
+    }
+  }
+
   productUnlockDone(p: Pallier) {
     this.productsComponent.forEach(prod => {
       if (p.idcible === prod.product.id) {
         this.toasterService.pop('Bonus de ' + p.typeratio + ' effectué sur ' + prod.product.name);
       }
     });
+  }
+
+  buyAngels(angel) {
+    if (this.world.activeangels >= angel.seuil) {
+      this.world.activeangels -= angel.seuil;
+      angel.unlocked = true;
+      if (angel.typeratio === 'ange') {
+        this.world.angelbonus += angel.ratio;
+      } else {
+        if (angel.idcible === 0) {
+          this.productsComponent.forEach(product => product.calcUpgrade(angel));
+          this.toasterService.pop('Upgrade buy' + angel.typeratio + 'for all products', 'Upgrade Angels');
+        } else {
+          this.productsComponent[angel.idcible - 1].calcUpgrade(angel);
+          // tslint:disable-next-line:max-line-length
+          this.toasterService.pop('Upgrade buy ' + angel.typeratio + ' for ' + this.world.products.product[angel.idcible - 1].name, 'Upgrade Angels');
+        }
+      }
+    }
+  }
+
+  claimAndRestart(): void {
+    this.service.deleteWorld();
+    window.location.reload();
   }
 }

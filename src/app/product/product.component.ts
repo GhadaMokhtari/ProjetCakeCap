@@ -3,7 +3,7 @@ import {Pallier, Product, World} from '../world';
 import { AppComponent } from '../app.component';
 import {apiUrl} from '../api';
 import {RestService} from '../rest.service';
-import {ToasterService} from 'angular2-toaster/src/toaster.service';
+import {ToasterService} from 'angular2-toaster';
 
 
 declare var require;
@@ -75,9 +75,6 @@ export class ProductComponent implements OnInit {
   @Output()
   notifyUnlocked: EventEmitter<Pallier> = new EventEmitter<Pallier>();
 
-  @Output() notifyAchat: EventEmitter<number> = new EventEmitter<number>();
-
-
   ngOnInit(): void {
     setInterval(() => {
       this.calcScore();
@@ -137,9 +134,13 @@ export class ProductComponent implements OnInit {
 
   buyQuantite() {
     let qty = 0;
-
-    // tslint:disable-next-line:max-line-length
-    if (this._qtmulti === '1') { qty = 1; } else if (this._qtmulti === '10') { qty = 10; } else if (this._qtmulti === '100') { qty = 100; } else if (this._qtmulti === 'Max') { qty = this.calcMaxCanBuy(); }
+    if (this._qtmulti === '1') {
+      qty = 1;
+    } else if (this._qtmulti === '10') {
+      qty = 10; } else if (this._qtmulti === '100') {
+      qty = 100; } else {
+      qty = this.calcMaxCanBuy();
+    }
 
     return qty;
   }
@@ -156,43 +157,25 @@ export class ProductComponent implements OnInit {
       this.notifyBuy.emit(coutAchat);
       this.product.quantite = this.product.quantite + qty;
     }
+    this.productsUnlocks();
+    this.service.putProduct(this.product);
   }
 
   getRealPrice() {
     return this.product.cout * this.product.croissance ** this.product.quantite;
   }
 
-  calcMaxCanBuy() {
-    const price = this.getRealPrice();
-    let res;
-    let multiplicateur;
-
-    if (this._qtmulti === 'max') {
-      // multiplicateur =Math.round((Math.log((this.worldMoney*(this.product.croissance-1))/(price)+1))/Math.log(this.product.croissance)-1);
-      multiplicateur = Math.ceil(
-        Math.log(
-          1 - (this._money * (1 - this.product.croissance)) / price
-        ) /
-        Math.log(this.product.croissance) -
-        1
-      );
-      console.log(multiplicateur);
-      if (multiplicateur <= 0) {
-        multiplicateur = 1;
-      }
-    } else {
-      // tslint:disable-next-line:radix
-      multiplicateur = parseInt(this._qtmulti.substr(1));
+  calcMaxCanBuy(): number {
+    let quantiteMax = 0;
+    if (this.product.cout * this.product.croissance <= this._money) {
+      const calPrelem = (this.product.cout - (this._money * (1 - this.product.croissance))) / this.product.cout;
+      const quant = (Math.log(calPrelem)) / Math.log(this.product.croissance);
+      quantiteMax = Math.round(quant - 1);
     }
-    res =
-      price *
-      ((1 - this.product.croissance ** multiplicateur) /
-        (1 - this.product.croissance));
-    this.achat = multiplicateur;
-    return res;
+    return quantiteMax;
   }
 
-  calcCout(qty: number) {
+    calcCout(qty: number) {
     let totalCost = 0;
     console.log('nom du produit  ' + this.product.name);
     console.log('cout du prod ' + this.product.cout);
