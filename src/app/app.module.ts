@@ -22,7 +22,7 @@ import {ProgressBarModule} from 'angular-progress-bar';
     FormsModule,
     HttpClientModule,
     ToasterModule.forRoot(),
-    ProgressBarModule
+    ProgressBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

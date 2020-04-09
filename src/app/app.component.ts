@@ -29,6 +29,7 @@ export class AppComponent {
   managerDispo: boolean;
   upgradeDispo: boolean;
   dispoAngel: boolean;
+  private toasteService: any;
   constructor(private service: RestService, toasterService: ToasterService) {
     this.qtmulti = this.qt[this.qtIndex];
     this.server = service.getServer();
@@ -134,12 +135,12 @@ export class AppComponent {
 
       if (u.idcible === 0) {
         this.productsComponent.forEach(prod => prod.calcUpgrade(u));
-        this.toasterService.pop('Upgrade buy ' + u.typeratio + ' for all products', 'Global Upgrade');
+        this.toasterService.pop('popup', 'Global Upgrade', 'Upgrade buy ' + u.typeratio + ' for all products', );
       } else {
         this.productsComponent.forEach(prod => {
           if (u.idcible === prod.product.id) {
             prod.calcUpgrade(u);
-            this.toasterService.pop('Upgrade buy ' + u.typeratio + ' for ' + prod.product.name, 'Upgrade');
+            this.toasterService.pop('popup', 'Upgrade', 'Upgrade buy ' + u.typeratio + ' for ' + prod.product.name);
           }
         });
       }
@@ -157,7 +158,7 @@ export class AppComponent {
         if (m.idcible === element.id) {
           const indexe = this.world.products.product.indexOf(element);
           this.world.products.product[indexe].managerUnlocked = true;
-          this.toasterService.pop('Achat du Manager ' + m.name + ' effectué');
+          this.toasterService.pop('popup', 'Congrats', 'Manager\'s purchase ' + m.name + ' made');
         }
       });
       this.newManager();

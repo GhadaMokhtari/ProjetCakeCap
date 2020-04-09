@@ -16,9 +16,11 @@ export class RestService {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);
   }
+
   private setHeaders(user: string): HttpHeaders {
-    const headers = new HttpHeaders();
-    headers.append('X-user', user);
+    // tslint:disable-next-line:prefer-const
+    let headers = new HttpHeaders({ 'X-User': user});
+
     return headers;
   }
 
@@ -53,21 +55,21 @@ export class RestService {
   setUser(value: string) {
     this.user = value;
   }
-  public saveWorld(world: World) {
-    this.http
-      .put(this._server + 'generic/world', world, {
-        headers: {'X-user': localStorage.getItem('username')}
-      })
-      .subscribe(
-        () => {
-          console.log('Enregistrement effectué');
-        },
-        (error) => {
-          console.log('Erreur : ' + error);
-        }
-      );
-
-  }
+  // public saveWorld(world: World) {
+  //   this.http
+  //     .put(this._server + 'generic/world', world, {
+  //       headers: {'X-user': localStorage.getItem('username')}
+  //     })
+  //     .subscribe(
+  //       () => {
+  //         console.log('Enregistrement effectué');
+  //       },
+  //       (error) => {
+  //         console.log('Erreur : ' + error);
+  //       }
+  //     );
+  //
+  // }
 
   public deleteWorld(): Promise<Response> {
     return this.http
