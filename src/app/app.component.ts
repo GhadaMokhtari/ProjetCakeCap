@@ -33,12 +33,24 @@ export class AppComponent {
   constructor(private service: RestService, toasterService: ToasterService) {
     this.qtmulti = this.qt[this.qtIndex];
     this.server = service.getServer();
+    service.setUser(localStorage.getItem('username'));
     this.toasterService = toasterService;
 
     service.getWorld().then(
       world => {
         this.world = world;
       });
+    setTimeout(() => { console.log(this.world.money); console.log(this.world.score);
+      // tslint:disable-next-line:triple-equals
+                       if (this.world.activeangels != 0) {
+        console.log('coucou');
+        console.log(this.world.products);
+        this.world.products.product.forEach(produit => {
+          console.log('coucou');
+          produit.revenu = produit.revenu * (1 + (this.world.activeangels * this.world.angelbonus / 100));
+        });
+      }
+    }, 100);
   }
   // tslint:disable-next-line:use-lifecycle-interface
   ngOnInit() {
@@ -53,7 +65,7 @@ export class AppComponent {
       this.angelsDisponibility();
       this.upgradeDisponibility();
       this.bonusAllunlock();
-    }, 1000);
+    }, 100);
   }
   getImage() {
     return apiUrl + this.world.logo;

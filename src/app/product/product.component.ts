@@ -111,7 +111,7 @@ export class ProductComponent implements OnInit {
       this.progressbar.animate(1, {duration: this.product.vitesse});
       this.isRun = true;
     }
-    this.service.putProduct(this.product);
+   // this.service.putProduct(this.product);
   }
 
   calcScore() {
@@ -152,14 +152,15 @@ export class ProductComponent implements OnInit {
     const qty = this.buyQuantite();
     // tslint:disable-next-line:prefer-const
     let coutAchat = this.calcCout(qty);
-    console.log('coutAchat :' + qty);
+    //console.log('coutAchat :' + qty);
     if (this._money >= coutAchat) {
-      console.log('test', + coutAchat);
+     // console.log('test', + coutAchat);
       this.notifyBuy.emit(coutAchat);
       this.product.quantite = this.product.quantite + qty;
     }
     this.productsUnlocks();
     this.service.putProduct(this.product);
+    console.log('demande de modification')
   }
 
   getRealPrice() {
@@ -178,15 +179,15 @@ export class ProductComponent implements OnInit {
 
     calcCout(qty: number) {
     let totalCost = 0;
-    console.log('nom du produit  ' + this.product.name);
-    console.log('cout du prod ' + this.product.cout);
-    console.log('cout du croissance ' + this.product.croissance);
-    console.log('cout du quantite ' + this.product.quantite);
+    // console.log('nom du produit  ' + this.product.name);
+   // console.log('cout du prod ' + this.product.cout);
+   // console.log('cout du croissance ' + this.product.croissance);
+   // console.log('cout du quantite ' + this.product.quantite);
     let costForOne = this.product.cout * (this.product.croissance ** this.product.quantite);
     // this.product.cout = costForOne;
     // this.service.putProduct(this.product);
-    console.log('prix pour un prod ' + costForOne);
-    console.log('quantité ' + qty);
+   // console.log('prix pour un prod ' + costForOne);
+   // console.log('quantité ' + qty);
     for (let i = 0; i < qty; i++) {
       totalCost += costForOne;
       costForOne = costForOne * this.product.croissance;

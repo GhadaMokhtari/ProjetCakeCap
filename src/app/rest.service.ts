@@ -50,32 +50,26 @@ export class RestService {
   }
 
   public putManager(manager: Pallier): Promise<Response> {
-    // console.log(upgrade);
-    return this.http
-      .put(this._server + 'generic/manager', manager, {
-        headers: { 'X-user': this.getUser() }
-      })
-      .toPromise()
-      .then(response => response)
+    return this.http.put(this._server + '/generic/manager', manager, {
+      headers: { 'X-user': this.getUser() }
+    })
+      .toPromise().then(response => response)
       .catch(this.handleError);
   }
 
-
   public putProduct(product: Product): Promise<Response> {
-    // console.log(product);
-    return this.http
-      .put(this._server + 'generic/product', product, {
-        headers: { 'X-user': this.getUser() }
-      })
-      .toPromise()
-      .then(response => response)
+    console.log('produit modifié')
+    console.log(product)
+    return this.http.put(this._server + '/generic/product', product, {
+      headers: { 'X-user': this.getUser() }
+    })
+      .toPromise().then(response => response)
       .catch(this.handleError);
   }
 
   public putUpgrade(upgrade: Pallier): Promise<Response> {
-    // console.log(upgrade);
     return this.http
-      .put(this._server + 'generic/upgrade', upgrade, {
+      .put(this._server + '/generic/upgrade', upgrade, {
         headers: { 'X-user': this.getUser() }
       })
       .toPromise()
@@ -94,28 +88,12 @@ export class RestService {
       .catch(this.handleError);
   }
 
-  // public saveWorld(world: World) {
-  //   this.http
-  //     .put(this._server + 'generic/world', world, {
-  //       headers: {'X-user': localStorage.getItem('username')}
-  //     })
-  //     .subscribe(
-  //       () => {
-  //         console.log('Enregistrement effectué');
-  //       },
-  //       (error) => {
-  //         console.log('Erreur : ' + error);
-  //       }
-  //     );
-  //
-  // }
-
-  public deleteWorld(): Promise<Response> {
+  public deleteWorld(): Promise < Response > {
     return this.http
       .delete(this._server + 'generic/world', {
         headers: this.setHeaders(this.getUser())
       })
       .toPromise().then(response => response)
       .catch(this.handleError);
-  }
+  };
 }
