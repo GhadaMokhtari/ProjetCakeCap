@@ -10,7 +10,7 @@ import { Component } from '@angular/core';
             <ng-content select=".app-modal-header"></ng-content>
          </div>
          <div class="modal-body">
-             <ng-content select=".app-modal-body"></ng-content>
+           <ng-content select=".app-modal-body"></ng-content>
          </div>
          <div class="modal-footer">
             <ng-content select=".app-modal-footer"></ng-content>

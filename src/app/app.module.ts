@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 import { AppComponent } from './app.component';
 import { ProductComponent } from './product/product.component';
 import { BigvaluePipe } from './bigvalue.pipe';
@@ -8,6 +8,8 @@ import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import { ToasterModule } from 'angular2-toaster';
 import {ProgressBarModule} from 'angular-progress-bar';
+import { NavbarComponent } from './core/components/navbar/navbar.component';
+import {RouterModule} from '@angular/router';
 
 
 @NgModule({
@@ -15,7 +17,8 @@ import {ProgressBarModule} from 'angular-progress-bar';
     AppComponent,
     ProductComponent,
     BigvaluePipe,
-    ModalComponent
+    ModalComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
@@ -23,6 +26,11 @@ import {ProgressBarModule} from 'angular-progress-bar';
     HttpClientModule,
     ToasterModule.forRoot(),
     ProgressBarModule,
+    RouterModule,
+  ],
+  exports: [ NavbarComponent ],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA
   ],
   providers: [],
   bootstrap: [AppComponent]

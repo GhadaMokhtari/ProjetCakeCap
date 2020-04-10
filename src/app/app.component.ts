@@ -109,7 +109,7 @@ export class AppComponent {
       if (!pallier.unlocked && min >= pallier.seuil) {
         pallier.unlocked = true;
         this.productsComponent.forEach(prod => prod.calcUpgrade(pallier));
-        this.toasterService.pop('Bonus de ' + pallier.typeratio + ' effectué sur tous les produits', 'bonus global');
+        this.toasterService.pop('popup', 'Bonus global', 'Bonus of ' + pallier.typeratio + ' performed on all products');
       }
     });
   }
@@ -135,7 +135,7 @@ export class AppComponent {
 
       if (u.idcible === 0) {
         this.productsComponent.forEach(prod => prod.calcUpgrade(u));
-        this.toasterService.pop('popup', 'Global Upgrade', 'Upgrade buy ' + u.typeratio + ' for all products', );
+        this.toasterService.pop('popup', 'Global Upgrade', 'Upgrade buy ' + u.typeratio + ' for all products');
       } else {
         this.productsComponent.forEach(prod => {
           if (u.idcible === prod.product.id) {
@@ -145,6 +145,7 @@ export class AppComponent {
         });
       }
       this.upgradeDisponibility();
+      this.service.putUpgrade(u);
     }
   }
 
@@ -158,10 +159,11 @@ export class AppComponent {
         if (m.idcible === element.id) {
           const indexe = this.world.products.product.indexOf(element);
           this.world.products.product[indexe].managerUnlocked = true;
-          this.toasterService.pop('popup', 'Congrats', 'Manager\'s purchase ' + m.name + ' made');
+          this.toasterService.pop('popup', 'Congrats !', 'Manager\'s purchase ' + m.name + ' made');
         }
       });
       this.newManager();
+      this.service.putManager(m);
       }
   }
 
@@ -179,7 +181,7 @@ export class AppComponent {
   productUnlockDone(p: Pallier) {
     this.productsComponent.forEach(prod => {
       if (p.idcible === prod.product.id) {
-        this.toasterService.pop('Bonus de ' + p.typeratio + ' effectué sur ' + prod.product.name);
+        this.toasterService.pop('popup', 'Congrats !', 'Bonus of ' + p.typeratio + ' performed on' + prod.product.name);
       }
     });
   }
@@ -193,13 +195,14 @@ export class AppComponent {
       } else {
         if (angel.idcible === 0) {
           this.productsComponent.forEach(product => product.calcUpgrade(angel));
-          this.toasterService.pop('Upgrade buy' + angel.typeratio + 'for all products', 'Upgrade Angels');
+          this.toasterService.pop('popup', 'Upgrade buy' + angel.typeratio + 'for all products', 'Upgrade Angels');
         } else {
           this.productsComponent[angel.idcible - 1].calcUpgrade(angel);
           // tslint:disable-next-line:max-line-length
           this.toasterService.pop('Upgrade buy ' + angel.typeratio + ' for ' + this.world.products.product[angel.idcible - 1].name, 'Upgrade Angels');
         }
       }
+      this.service.putAngel(angel);
     }
   }
 

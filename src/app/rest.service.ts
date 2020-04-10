@@ -16,11 +16,11 @@ export class RestService {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);
   }
-
   private setHeaders(user: string): HttpHeaders {
-    // tslint:disable-next-line:prefer-const
-    let headers = new HttpHeaders({ 'X-User': user});
+    console.log(user);
+    const headers = new HttpHeaders({ 'X-User': user});
 
+    console.log(headers);
     return headers;
   }
 
@@ -44,17 +44,56 @@ export class RestService {
   setServer(value: string) {
     this._server = value;
   }
-  putProduct(product: Product) {
-    return this.http.put(this._server + '/product', product, { headers: this.setHeaders(this.user) }).toPromise();
-  }
-
-  putManager(manager: Pallier) {
-    return this.http.put(this._server + '/manager', manager, { headers: this.setHeaders(this.user) }).toPromise();
-  }
   // tslint:disable-next-line:adjacent-overload-signatures
   setUser(value: string) {
     this.user = value;
   }
+
+  public putManager(manager: Pallier): Promise<Response> {
+    // console.log(upgrade);
+    return this.http
+      .put(this._server + 'generic/manager', manager, {
+        headers: { 'X-user': this.getUser() }
+      })
+      .toPromise()
+      .then(response => response)
+      .catch(this.handleError);
+  }
+
+
+  public putProduct(product: Product): Promise<Response> {
+    // console.log(product);
+    return this.http
+      .put(this._server + 'generic/product', product, {
+        headers: { 'X-user': this.getUser() }
+      })
+      .toPromise()
+      .then(response => response)
+      .catch(this.handleError);
+  }
+
+  public putUpgrade(upgrade: Pallier): Promise<Response> {
+    // console.log(upgrade);
+    return this.http
+      .put(this._server + 'generic/upgrade', upgrade, {
+        headers: { 'X-user': this.getUser() }
+      })
+      .toPromise()
+      .then(response => response)
+      .catch(this.handleError);
+  }
+
+  public putAngel(angel: Pallier): Promise<Response> {
+    // console.log(angel);
+    return this.http
+      .put(this._server + 'generic/angelupgrade', angel, {
+        headers: { 'X-user': this.getUser() }
+      })
+      .toPromise()
+      .then(response => response)
+      .catch(this.handleError);
+  }
+
   // public saveWorld(world: World) {
   //   this.http
   //     .put(this._server + 'generic/world', world, {

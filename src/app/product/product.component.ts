@@ -111,6 +111,7 @@ export class ProductComponent implements OnInit {
       this.progressbar.animate(1, {duration: this.product.vitesse});
       this.isRun = true;
     }
+    this.service.putProduct(this.product);
   }
 
   calcScore() {

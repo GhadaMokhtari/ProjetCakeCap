@@ -4,9 +4,13 @@
     <div class="col-md-1">
       <img class="rond" [attr.src]="this.getImage()" alt="Responsive image" width="200%">
     </div>
-    <div class="col-md-8 text-center" style="margin-top: 20px">
-      <h3> You have :</h3>
+    <div class="col-md-4 text-center" style="margin-top: 20px">
+      <h3> Money :</h3>
       <p style="font-size: large">{{world.money}} €</p>
+    </div>
+    <div class="col-md-4 text-center" style="margin-top: 20px">
+      <h3> Score:</h3>
+      <p style="font-size: large">{{world.score}} €</p>
     </div>
   <div class="col-md-2" style="margin-top: 35px">
     <form>
@@ -61,7 +65,7 @@
               </div>
               <div class="col-md-7">
                 <div class="row">
-                  <button class="btn btn-info pull-right" style="height: 50px; width: 100px;" (click)="buyManager(manager)" [disabled]="world.money < manager.seuil">Hire!</button>
+                  <button class="btn btn-info pull-right" style="height: 50px; width: 100px;background-color: #abc6d9" (click)="buyManager(manager)" [disabled]="world.money < manager.seuil">Hire!</button>
                   <span class="txt2 row text-center font-weight-bold" style="font-size:x-large">{{manager.name}}
                     <br><span style="font-size: medium">Price : {{manager.seuil}} €</span>
                             </span>
@@ -86,7 +90,7 @@
               </div>
               <div class="col-md-7">
                 <div class="row">
-                  <button class="btn btn-info pull-right" style="height: 50px; width: 100px;" (click)="buyUpgrade(upgrade)" [disabled]="world.money < upgrade.seuil">Buy!</button>
+                  <button class="btn btn-info pull-right" style="height: 50px; width: 100px;background-color: #abc6d9" (click)="buyUpgrade(upgrade)" [disabled]="world.money < upgrade.seuil">Buy!</button>
                   <span class="txt2 row text-center font-weight-bold" style="font-size:x-large">{{upgrade.name}}
                     <br><span style="font-size: medium">Price : {{upgrade.seuil}} €</span>
                             </span>
